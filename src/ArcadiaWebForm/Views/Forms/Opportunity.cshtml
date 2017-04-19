@@ -1,0 +1,47 @@
+﻿@model ArcadiaWebForm.Models.Opportunity
+@{
+    ViewData["Title"] = "New opportunity";
+}
+
+
+<form asp-controller="Opportunity" asp-action="Create" method="post">
+    <input type="hidden" asp-for="id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="col-md-3">
+            <h2>Basic info</h2>
+            <div>
+                <label asp-for="title" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="title" class="form-control" />
+                    <span asp-validation-for="title" class="text-danger"></span>
+                </div>
+            </div>
+            <div>
+                <label asp-for="description" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="description" class="form-control" />
+                    <span asp-validation-for="description" class="text-danger"></span>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+            <h2>Details</h2>
+            <ul>
+                <li>lorem....</li>
+            </ul>
+        </div>
+
+        <div class="col-md-3">
+            <h2>Details</h2>
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+
+        
+
+    </div>
+
+</form>

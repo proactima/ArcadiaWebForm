@@ -26,7 +26,7 @@ namespace ArcadiaWebForm.Controllers
 
         public async Task<IActionResult> About()
         {
-            string accessToken = await _accessHandler.AquireAccessTokenAsync(HttpContext);
+            string accessToken = await _accessHandler.AquireAccessTokenAsync();
 
             var baseUrl = _configuration["Settings:BaseUrl"];
             var client = new HttpClient();
@@ -36,14 +36,6 @@ namespace ArcadiaWebForm.Controllers
             var response = await client.SendAsync(request);
 
             ViewData["Message"] = $"Response was: {response.StatusCode}";
-
-            return View();
-        }
-
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
 
             return View();
         }

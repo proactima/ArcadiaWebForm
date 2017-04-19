@@ -7,18 +7,20 @@ namespace ArcadiaWebForm.Services
 {
     public interface IAccessTokenHandler
     {
-        Task<string> AquireAccessTokenAsync(HttpContext context);
+        Task<string> AquireAccessTokenAsync();
     }
     public class AccessTokenHandler: IAccessTokenHandler
     {
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _contextAccessor;
         private string _currentAccessToken;
-        public AccessTokenHandler(IConfiguration configuration)
+        public AccessTokenHandler(IConfiguration configuration, IHttpContextAccessor contextAccessor)
         {
             _configuration = configuration;
+            _contextAccessor = contextAccessor;
         }
 
-        public async Task<string> AquireAccessTokenAsync(HttpContext context)
+        public async Task<string> AquireAccessTokenAsync()
         {
             if (!string.IsNullOrEmpty(_currentAccessToken)) return _currentAccessToken;
 
@@ -29,7 +31,7 @@ namespace ArcadiaWebForm.Services
             var todoListResourceId = _configuration["Authentication:AzureAd:ResourceId"];
 
             var authority = $"{instance}{tenantId}";
-            string userObjectID = context.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+            string userObjectID = _contextAccessor.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
 
             var credential = new ClientCredential(clientId, appKey);
             var authContext = new AuthenticationContext(authority);
