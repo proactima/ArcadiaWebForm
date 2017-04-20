@@ -1,9 +1,9 @@
 ﻿using ArcadiaWebForm.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ArcadiaWebForm.Services
@@ -12,14 +12,14 @@ namespace ArcadiaWebForm.Services
     public interface ICallApi
     {
         Task<string> GetId();
-        Task<HttpStatusCode> StoreObject(Opportunity obj);
+        Task<HttpResponseMessage> StoreArticleAsync(BaseModel obj);
     }
 
     public class ApiCaller : ICallApi
     {
         private readonly IAccessTokenHandler _tokenHandler;
         private readonly IConfiguration _configuration;
-        private readonly HttpClient _client;
+        private readonly HttpClient _client = new HttpClient();
 
         public ApiCaller(IConfiguration configuration, IAccessTokenHandler tokenHandler)
         {
@@ -29,27 +29,35 @@ namespace ArcadiaWebForm.Services
 
         public async Task<string> GetId()
         {
-            var accessToken = await _tokenHandler.AquireAccessTokenAsync();
-
-            var baseUrl = _configuration["Settings:BaseUrl"];
-            var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, baseUrl + "/id");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await client.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
+            var response = await ExecuteAsync(HttpMethod.Get, "/id");
 
             var bodyAsString = await response.Content.ReadAsStringAsync();
             var idModel = JsonConvert.DeserializeObject<IdModel>(bodyAsString);
 
-            return idModel.results[0].ids[0];
+            return idModel.Results[0].Ids[0];
         }
 
-        public async Task<HttpStatusCode> StoreObject(Opportunity obj)
+        private async Task<HttpResponseMessage> ExecuteAsync(HttpMethod method, string path, HttpContent content = null)
         {
+            var baseUrl = _configuration["Settings:BaseUrl"];
+            var accessToken = await _tokenHandler.AquireAccessTokenAsync();
 
-            await Task.Delay(1);
-            return HttpStatusCode.OK;
+            var request = new HttpRequestMessage(method, baseUrl + path);
+            request.Content = content;
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await _client.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+            return response;
+        }
+
+        public async Task<HttpResponseMessage> StoreArticleAsync(BaseModel obj)
+        {
+            var objAsString = JsonConvert.SerializeObject(obj);
+            var content = new StringContent(objAsString, Encoding.UTF8, "application/json");
+            var response = await ExecuteAsync(HttpMethod.Put, $"/article/{obj.Objectname}/{obj.Id}", content);
+
+            return response;
         }
     }
 }

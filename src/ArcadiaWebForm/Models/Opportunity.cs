@@ -2,12 +2,8 @@
 
 namespace ArcadiaWebForm.Models
 {
-    public class Opportunity
+    public class Opportunity : BaseModel
     {
-        [JsonRequired]
-        public string id { get; set; }
-        public string parentid => "0";
-        public string parenttype => "";
         [JsonRequired]
         public string title { get; set; }
         public string description { get; set; }
@@ -17,13 +13,5 @@ namespace ArcadiaWebForm.Models
         public ArcadiaLink client { get; set; }
         [JsonIgnore]
         public string selectedclient { get; set; }
-    }
-
-    public class ArcadiaLink
-    {
-        [JsonRequired]
-        public string type { get; set; }
-        [JsonRequired]
-        public string[] values { get; set; }
     }
 }

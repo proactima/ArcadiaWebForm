@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace ArcadiaWebForm.Models
 {
     public class IdModel
     {
-        public IList<InnerId> results { get; set; }
+        [JsonProperty(PropertyName = "results")]
+        public IList<InnerId> Results { get; set; }
     }
 
     public class InnerId
     {
-        public IList<string> ids { get; set; }
+        [JsonProperty(PropertyName ="ids")]
+        public IList<string> Ids { get; set; }
     }
 }

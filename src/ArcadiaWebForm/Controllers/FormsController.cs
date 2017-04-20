@@ -20,7 +20,7 @@ namespace ArcadiaWebForm.Controllers
         public async Task<IActionResult> Opportunity()
         {
             var id = await _api.GetId();
-            var opportunity = new Opportunity { id = id };
+            var opportunity = new Opportunity { Id = id };
             return View(opportunity);
         }
     }
