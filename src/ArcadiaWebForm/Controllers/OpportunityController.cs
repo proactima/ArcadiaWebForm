@@ -4,7 +4,6 @@ using ArcadiaWebForm.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,21 +25,25 @@ namespace ArcadiaWebForm.Controllers
         {
             var id = await _apiCaller.GetId();
 
-            var opportunity = CreateViewMode(id);
+            var opportunity = await CreateViewModeAsync(id);
             return View("New", opportunity);
         }
 
-        private View CreateViewMode(string id)
+        private async Task<View> CreateViewModeAsync(string id)
         {
+            var clients = await _apiCaller.LoadEntities<Client>("/organisation");
+
+            var selectableClients = clients
+                .Select(c => new SelectListItem { Text = c.Name, Value = c.Id })
+                .OrderBy(c => c.Text)
+                .Concat(new[] { new SelectListItem { Text = "Select a client", Value = "", Selected = true } })
+                .ToList();
+
             var opportunity = new View
             {
                 Id = id,
                 ExpectedInput = new Input(),
-                ClientList = new List<SelectListItem>
-                {   // todo get from API!
-                    new SelectListItem { Text = "Select a client", Value = "", Selected = true},
-                    new SelectListItem { Text = "ABB", Value = "abb_id" }
-                }
+                ClientList = selectableClients
             };
             return opportunity;
         }
@@ -51,7 +54,7 @@ namespace ArcadiaWebForm.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var opportunity = CreateViewMode(id);
+                var opportunity = await CreateViewModeAsync(id);
                 return View("New", opportunity);
             }
 
