@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.12
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcadiaWebForm", "ArcadiaWebForm\ArcadiaWebForm.csproj", "{7F46F8FA-DCFD-4164-8220-849A8BB3DFE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcadiaWebForm.Tests", "ArcadiaWebForm.Tests\ArcadiaWebForm.Tests.csproj", "{A6590F72-BD99-46D5-9092-ADBFC2581434}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{7F46F8FA-DCFD-4164-8220-849A8BB3DFE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F46F8FA-DCFD-4164-8220-849A8BB3DFE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F46F8FA-DCFD-4164-8220-849A8BB3DFE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6590F72-BD99-46D5-9092-ADBFC2581434}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6590F72-BD99-46D5-9092-ADBFC2581434}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6590F72-BD99-46D5-9092-ADBFC2581434}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6590F72-BD99-46D5-9092-ADBFC2581434}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

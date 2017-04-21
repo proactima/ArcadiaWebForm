@@ -11,7 +11,6 @@ namespace ArcadiaWebForm.Models
         public string Id { get; set; }
         [JsonProperty(PropertyName = "parentid")]
         public string ParentId => "0";
-        [JsonProperty(PropertyName = "parenttype")]
-        public string ParentType => "";
+
     }
 }

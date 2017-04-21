@@ -5,8 +5,11 @@ namespace ArcadiaWebForm.Models
     public class ArcadiaLink
     {
         [JsonRequired]
-        public string type { get; set; }
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
         [JsonRequired]
-        public string[] values { get; set; }
+        [JsonProperty(PropertyName = "values")]
+        public string[] Values { get; set; }
     }
 }

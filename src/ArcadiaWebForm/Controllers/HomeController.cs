@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace ArcadiaWebForm.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         private readonly IConfiguration _configuration;
