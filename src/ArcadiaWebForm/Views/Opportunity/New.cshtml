@@ -5,18 +5,16 @@
 
 <form asp-controller="Opportunity" asp-action="Create" method="post">
     @Html.HiddenFor(m => m.Id)
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="row">
-        @Html.Partial("Create", Model.ExpectedInput, new ViewDataDictionary(this.ViewData) { { "list", Model.ClientList} })
+        <h2>Create new opportunity</h2>
 
-        <div class="col-md-3">
-            <h2>Save</h2>
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </div>
+        @Html.Partial("Create", Model.ExpectedInput, new ViewDataDictionary(this.ViewData) { { "list", Model.ClientList } })
 
+        <input type="submit" value="Create" class="btn btn-primary" />
     </div>
-
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

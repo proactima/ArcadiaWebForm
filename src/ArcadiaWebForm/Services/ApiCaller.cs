@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System;
 
 namespace ArcadiaWebForm.Services
 {
@@ -14,6 +15,39 @@ namespace ArcadiaWebForm.Services
         Task<string> GetId();
         Task<HttpResponseMessage> StoreArticleAsync(Article obj);
         Task<IEnumerable<T>> LoadEntities<T>(string objectname) where T : Entity;
+    }
+
+    public class FakeApiCaller : ICallApi
+    {
+        public Task<string> GetId()
+        {
+            return Task.FromResult("aa");
+        }
+
+        public Task<IEnumerable<T>> LoadEntities<T>(string objectname) where T : Entity
+        {
+            var theList = new List<T>();
+            if (typeof(T) == typeof(Client))
+            {
+                theList.Add(new Client { Id = "cid1", Name = "Contoso", Objectname="client"} as T);
+                theList.Add(new Client { Id = "cid2", Name = "Fabrikam", Objectname = "client" } as T);
+            }
+
+            if (typeof(T) == typeof(CrmStatus))
+            {
+                theList.Add(new CrmStatus { Id = "cs1", Name = "Draft", IsDraft = true, Objectname = "crmstatus" } as T);
+                theList.Add(new CrmStatus { Id = "cs2", Name = "Open", IsDraft = false, Objectname = "crmstatus" } as T);
+                theList.Add(new CrmStatus { Id = "cs3", Name = "Closed", IsDraft = false, Objectname = "crmstatus" } as T);
+            }
+
+            return Task.FromResult((IEnumerable<T>)theList);
+        }
+
+        public Task<HttpResponseMessage> StoreArticleAsync(Article obj)
+        {
+            var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            return Task.FromResult(response);
+        }
     }
 
     public class ApiCaller : ICallApi

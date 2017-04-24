@@ -14,8 +14,11 @@ namespace ArcadiaWebForm
 {
     public class Startup
     {
+        private readonly IHostingEnvironment _env;
         public Startup(IHostingEnvironment env)
         {
+            _env = env;
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -35,28 +38,33 @@ namespace ArcadiaWebForm
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // own services
             services.AddScoped<IAccessTokenHandler, AccessTokenHandler>();
-            services.AddScoped<ICallApi, ApiCaller>();
-
-            // third party services
             services.AddAutoMapper();
-
-            // asp.net services
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddMvc(o =>
+
+            if (_env.IsDevelopment())
             {
-                var policy = new AuthorizationPolicyBuilder()
-                      .RequireAuthenticatedUser()
-                      .Build();
-                o.Filters.Add(new AuthorizeFilter(policy));
-            });
-            services.AddAuthentication(
-                SharedOptions => SharedOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+                services.AddScoped<ICallApi, FakeApiCaller>();
+                services.AddMvc();               
+            }
+            else
+            {
+                services.AddScoped<ICallApi, ApiCaller>();
+
+                services.AddMvc(o =>
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                          .RequireAuthenticatedUser()
+                          .Build();
+                    o.Filters.Add(new AuthorizeFilter(policy));
+                });
+
+                services.AddAuthentication(
+                    SharedOptions => SharedOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+            }
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -70,18 +78,18 @@ namespace ArcadiaWebForm
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+
+                app.UseCookieAuthentication();
+
+                app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
+                {
+                    ClientId = Configuration["Authentication:AzureAd:ClientId"],
+                    Authority = Configuration["Authentication:AzureAd:AADInstance"] + Configuration["Authentication:AzureAd:TenantId"],
+                    CallbackPath = Configuration["Authentication:AzureAd:CallbackPath"]
+                });
             }
 
             app.UseStaticFiles();
-
-            app.UseCookieAuthentication();
-
-            app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
-            {
-                ClientId = Configuration["Authentication:AzureAd:ClientId"],
-                Authority = Configuration["Authentication:AzureAd:AADInstance"] + Configuration["Authentication:AzureAd:TenantId"],
-                CallbackPath = Configuration["Authentication:AzureAd:CallbackPath"]
-            });
 
             app.UseMvc(routes =>
             {

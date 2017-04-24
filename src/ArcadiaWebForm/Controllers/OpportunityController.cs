@@ -37,6 +37,7 @@ namespace ArcadiaWebForm.Controllers
                 .Select(c => new SelectListItem { Text = c.Name, Value = c.Id })
                 .OrderBy(c => c.Text)
                 .Concat(new[] { new SelectListItem { Text = "Select a client", Value = "", Selected = true } })
+                .OrderByDescending(s => s.Selected)
                 .ToList();
 
             var opportunity = new View

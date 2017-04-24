@@ -1,34 +1,19 @@
 @model ArcadiaWebForm.Models.Opportunity.Input
 
-<div class="col-md-3">
-    <h2>Basic info</h2>
-
-    <div class="form-group">
-        <label asp-for="Title" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Title" class="form-control" />
-            <span asp-validation-for="Title" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Description" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Description" class="form-control" />
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
-    </div>
+<div class="form-group">
+    <label asp-for="Title" class="control-label"></label>
+    <input asp-for="Title" class="form-control" />
+    <span asp-validation-for="Title" class="text-danger"></span>
 </div>
 
-<div class="col-md-3">
-    <h2>Structure</h2>
-
-    <div class="form-group">
-        <label asp-for="SelectedClient" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <select asp-for="SelectedClient" asp-items="@this.ViewData["list"] as IList<SelectListItem>"></select> 
-            <span asp-validation-for="SelectedClient" class="text-danger"></span>
-        </div>
-    </div>
+<div class="form-group">
+    <label asp-for="Description" class="control-label"></label>
+    <input asp-for="Description" class="form-control" />
+    <span asp-validation-for="Description" class="text-danger"></span>
 </div>
 
+<div class="form-group">
+    <label asp-for="SelectedClient" class="control-label"></label>
+    <select asp-for="SelectedClient" asp-items="@this.ViewData["list"] as IList<SelectListItem>" class="form-control"></select>
+    <span asp-validation-for="SelectedClient" class="text-danger"></span>
+</div>
