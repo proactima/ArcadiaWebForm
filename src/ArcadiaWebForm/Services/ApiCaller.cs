@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System;
 
 namespace ArcadiaWebForm.Services
 {
@@ -29,7 +28,7 @@ namespace ArcadiaWebForm.Services
             var theList = new List<T>();
             if (typeof(T) == typeof(Client))
             {
-                theList.Add(new Client { Id = "cid1", Name = "Contoso", Objectname="client"} as T);
+                theList.Add(new Client { Id = "cid1", Name = "Contoso", Objectname = "client" } as T);
                 theList.Add(new Client { Id = "cid2", Name = "Fabrikam", Objectname = "client" } as T);
             }
 

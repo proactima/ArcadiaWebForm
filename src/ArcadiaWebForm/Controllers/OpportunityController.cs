@@ -31,7 +31,7 @@ namespace ArcadiaWebForm.Controllers
 
         private async Task<View> CreateViewModeAsync(string id)
         {
-            var clients = await _apiCaller.LoadEntities<Client>("/organisation");
+            var clients = await _apiCaller.LoadEntities<Client>("/unit"); //organisation
 
             var selectableClients = clients
                 .Select(c => new SelectListItem { Text = c.Name, Value = c.Id })

@@ -40,15 +40,12 @@ namespace ArcadiaWebForm
         {
             services.AddScoped<IAccessTokenHandler, AccessTokenHandler>();
             services.AddAutoMapper();
+            services.AddMemoryCache();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IConfiguration>(Configuration);
 
-            if (_env.IsDevelopment())
-            {
-                services.AddScoped<ICallApi, FakeApiCaller>();
-                services.AddMvc();               
-            }
-            else
+            var useRemote = Configuration.GetValue<bool>("UseRemote");
+            if (useRemote)
             {
                 services.AddScoped<ICallApi, ApiCaller>();
 
@@ -62,6 +59,11 @@ namespace ArcadiaWebForm
 
                 services.AddAuthentication(
                     SharedOptions => SharedOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+            else
+            {
+                services.AddScoped<ICallApi, FakeApiCaller>();
+                services.AddMvc();
             }
         }
 
@@ -78,7 +80,11 @@ namespace ArcadiaWebForm
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+            }
 
+            var useRemote = Configuration.GetValue<bool>("UseRemote");
+            if (useRemote)
+            {
                 app.UseCookieAuthentication();
 
                 app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
