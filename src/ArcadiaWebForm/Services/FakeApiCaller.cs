@@ -12,7 +12,7 @@ namespace ArcadiaWebForm.Services
             return Task.FromResult("aa");
         }
 
-        public Task<IEnumerable<T>> LoadEntities<T>(string objectname) where T : Entity
+        public Task<IEnumerable<T>> LoadEntities<T>() where T : Entity, new()
         {
             var theList = new List<T>();
             if (typeof(T) == typeof(Organisation))

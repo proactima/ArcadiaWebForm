@@ -15,6 +15,15 @@ namespace ArcadiaWebForm.Models.Opportunity
         [JsonProperty(PropertyName = "e_status_ids")]
         public ArcadiaLink Status { get; set; }
 
+        [JsonProperty(PropertyName = "e_priority_ids")]
+        public ArcadiaLink Priority { get; set; }
+
+        [JsonProperty(PropertyName = "e_phase_ids")]
+        public ArcadiaLink Phase { get; set; }
+
+        [JsonProperty(PropertyName = "e_probability_ids")]
+        public ArcadiaLink Probability { get; set; }
+
         [JsonProperty(PropertyName = "e_client_ids")]
         public ArcadiaLink Client { get; set; }
 

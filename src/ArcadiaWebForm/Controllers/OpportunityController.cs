@@ -4,6 +4,7 @@ using ArcadiaWebForm.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,12 +32,12 @@ namespace ArcadiaWebForm.Controllers
 
         private async Task<View> CreateViewModeAsync(string id)
         {
-            var clients = await _apiCaller.LoadEntities<Organisation>(new Organisation().Objectname);
+            var clients = await _apiCaller.LoadEntities<Organisation>();
 
             var selectableClients = clients
                 .Select(c => new SelectListItem { Text = c.Name, Value = c.Id })
                 .OrderBy(c => c.Text)
-                .Concat(new[] { new SelectListItem { Text = "Select an organisation", Value = "", Selected = true } })
+                .Concat(new[] { new SelectListItem { Text = "Select a client", Value = "", Selected = true } })
                 .OrderByDescending(s => s.Selected)
                 .ToList();
 
@@ -61,13 +62,26 @@ namespace ArcadiaWebForm.Controllers
 
             var outputObj = _map.Map<Input, Output>(obj);
 
-            var crmStatuses = await _apiCaller.LoadEntities<CrmStatus>("crmstatus");
-            var statusId = crmStatuses.First(c => c.InDraft).Id;
-            outputObj.Status = new ArcadiaLink { Type = "crmstatus", Values = new[] { statusId } };
+            await HandleDefaultValuesAsync(outputObj);
 
             var response = await _apiCaller.StoreArticleAsync(outputObj);
 
             return RedirectToAction("index", "Forms");
+        }
+
+        private async Task HandleDefaultValuesAsync(Output outputObj)
+        {
+            outputObj.Status = await CreateLinkObject<CrmStatus>(c => c.InDraft);
+            outputObj.Probability = await CreateLinkObject<CrmProbability>(c => c.IsDefault);
+            outputObj.Phase = await CreateLinkObject<CrmPhase>(c => c.IsDefault);
+            outputObj.Priority = await CreateLinkObject<CrmPriority>(c => c.IsDefault);
+        }
+
+        private async Task<ArcadiaLink> CreateLinkObject<T>(Func<T, bool> predicateForDefaultValue) where T : Entity, new()
+        {
+            var objects = await _apiCaller.LoadEntities<T>();
+            var defaultValue = objects.First(predicateForDefaultValue);
+            return new ArcadiaLink { Type = defaultValue.Objectname, Values = new[] { defaultValue.Id } };
         }
     }
 }

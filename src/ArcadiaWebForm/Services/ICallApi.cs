@@ -9,6 +9,6 @@ namespace ArcadiaWebForm.Services
     {
         Task<string> GetId();
         Task<HttpResponseMessage> StoreArticleAsync(Article obj);
-        Task<IEnumerable<T>> LoadEntities<T>(string objectname) where T : Entity;
+        Task<IEnumerable<T>> LoadEntities<T>() where T : Entity, new();
     }
 }

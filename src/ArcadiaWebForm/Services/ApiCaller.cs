@@ -27,9 +27,10 @@ namespace ArcadiaWebForm.Services
             return response.Results[0].Ids[0];
         }
 
-        public async Task<IEnumerable<T>> LoadEntities<T>(string objectname) where T : Entity
+        public async Task<IEnumerable<T>> LoadEntities<T>() where T : Entity, new()
         {
-            var response = await ExecuteAsync<T>(HttpMethod.Get, $"/entity/{objectname}");
+            var instance = new T();
+            var response = await ExecuteAsync<T>(HttpMethod.Get, $"/entity/{instance.Objectname}");
             return response.Results;
         }
 
