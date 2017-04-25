@@ -31,12 +31,12 @@ namespace ArcadiaWebForm.Controllers
 
         private async Task<View> CreateViewModeAsync(string id)
         {
-            var clients = await _apiCaller.LoadEntities<Client>("/unit"); //organisation
+            var clients = await _apiCaller.LoadEntities<Organisation>(new Organisation().Objectname);
 
             var selectableClients = clients
                 .Select(c => new SelectListItem { Text = c.Name, Value = c.Id })
                 .OrderBy(c => c.Text)
-                .Concat(new[] { new SelectListItem { Text = "Select a client", Value = "", Selected = true } })
+                .Concat(new[] { new SelectListItem { Text = "Select an organisation", Value = "", Selected = true } })
                 .OrderByDescending(s => s.Selected)
                 .ToList();
 
@@ -62,7 +62,7 @@ namespace ArcadiaWebForm.Controllers
             var outputObj = _map.Map<Input, Output>(obj);
 
             var crmStatuses = await _apiCaller.LoadEntities<CrmStatus>("crmstatus");
-            var statusId = crmStatuses.First(c => c.IsDraft).Id;
+            var statusId = crmStatuses.First(c => c.InDraft).Id;
             outputObj.Status = new ArcadiaLink { Type = "crmstatus", Values = new[] { statusId } };
 
             var response = await _apiCaller.StoreArticleAsync(outputObj);

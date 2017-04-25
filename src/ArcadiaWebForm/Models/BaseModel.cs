@@ -5,7 +5,7 @@ namespace ArcadiaWebForm.Models
     public abstract class BaseModel
     {
         [JsonIgnore]
-        public string Objectname { get; set; }
+        public abstract string Objectname { get; }
         [JsonRequired]
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
