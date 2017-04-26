@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ArcadiaWebForm.Models.Opportunity
 {
-    public class Input
+    public class OpportunityInputModel
     {
         [HiddenInput]
         public string Id { get; set; }

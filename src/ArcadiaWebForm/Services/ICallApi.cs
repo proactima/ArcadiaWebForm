@@ -1,4 +1,5 @@
 ﻿using ArcadiaWebForm.Models;
+using ArcadiaWebForm.Models.Entity;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;

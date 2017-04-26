@@ -6,11 +6,12 @@ namespace ArcadiaWebForm.Models
     {
         [JsonIgnore]
         public abstract string Objectname { get; }
+
         [JsonRequired]
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
-        [JsonProperty(PropertyName = "parentid")]
-        public string ParentId => "0";
 
+        [JsonProperty(PropertyName = "parentid")]
+        public string ParentId { get; set; } = "0";
     }
 }

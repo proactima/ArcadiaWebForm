@@ -1,4 +1,5 @@
 ﻿using ArcadiaWebForm.Models;
+using ArcadiaWebForm.Models.Entity;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -50,11 +51,11 @@ namespace ArcadiaWebForm.Services
             return response;
         }
 
-        private async Task<ResponseModel<T>> ExecuteAsync<T>(HttpMethod method, string path, HttpContent content = null)
+        private async Task<ResponseResultModel<T>> ExecuteAsync<T>(HttpMethod method, string path, HttpContent content = null)
         {
             var response = await ExecuteAsync(method, path, content);
             var bodyAsString = await response.Content.ReadAsStringAsync();
-            var model = JsonConvert.DeserializeObject<ResponseModel<T>>(bodyAsString);
+            var model = JsonConvert.DeserializeObject<ResponseResultModel<T>>(bodyAsString);
 
             return model;
         }

@@ -10,34 +10,35 @@ namespace ArcadiaWebForm.Services
     {
         Task<string> AquireAccessTokenAsync();
     }
-    public class AccessTokenHandler: IAccessTokenHandler
+    public class AccessTokenHandler : IAccessTokenHandler
     {
         private readonly IMemoryCache _cache;
-        
-        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _contextAccessor;
+
+        private readonly string _appKey;
+        private readonly string _clientId;
+        private readonly string _resourceId;
+        private readonly string _authority;
+
         public AccessTokenHandler(IConfiguration configuration, IHttpContextAccessor contextAccessor, IMemoryCache cache)
         {
-            _configuration = configuration;
             _contextAccessor = contextAccessor;
             _cache = cache;
+
+            _appKey = configuration["Authentication:AzureAd:SecretKey"];
+            _clientId = configuration["Authentication:AzureAd:ClientId"];
+            _resourceId = configuration["Authentication:AzureAd:ResourceId"];
+            _authority = $"{configuration["Authentication:AzureAd:AADInstance"]}{configuration["Authentication:AzureAd:TenantId"]}";
         }
 
         public async Task<string> AquireAccessTokenAsync()
         {
-            var instance = _configuration["Authentication:AzureAd:AADInstance"];
-            var tenantId = _configuration["Authentication:AzureAd:TenantId"];
-            var appKey = _configuration["Authentication:AzureAd:SecretKey"];
-            var clientId = _configuration["Authentication:AzureAd:ClientId"];
-            var todoListResourceId = _configuration["Authentication:AzureAd:ResourceId"];
-
-            var authority = $"{instance}{tenantId}";
             string userObjectID = _contextAccessor.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
 
-            var credential = new ClientCredential(clientId, appKey);
-            var authContext = new AuthenticationContext(authority, new InMemoryTokenCache(_cache, userObjectID));
+            var credential = new ClientCredential(_clientId, _appKey);
+            var authContext = new AuthenticationContext(_authority, new InMemoryTokenCache(_cache, userObjectID));
 
-            var result = await authContext.AcquireTokenAsync(todoListResourceId, credential);
+            var result = await authContext.AcquireTokenAsync(_resourceId, credential);
             return result.AccessToken;
         }
     }

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ArcadiaWebForm.Models
+namespace ArcadiaWebForm.Models.Entity
 {
     public abstract class Entity : BaseModel
     {

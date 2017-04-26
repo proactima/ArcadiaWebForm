@@ -1,4 +1,5 @@
 using ArcadiaWebForm.Models;
+using ArcadiaWebForm.Models.Entity;
 using ArcadiaWebForm.Models.Opportunity;
 using ArcadiaWebForm.Services;
 using AutoMapper;
@@ -30,7 +31,7 @@ namespace ArcadiaWebForm.Controllers
             return View("New", opportunity);
         }
 
-        private async Task<View> CreateViewModeAsync(string id)
+        private async Task<OpportunityViewModel> CreateViewModeAsync(string id)
         {
             var clients = await _apiCaller.LoadEntities<Organisation>();
 
@@ -41,10 +42,10 @@ namespace ArcadiaWebForm.Controllers
                 .OrderByDescending(s => s.Selected)
                 .ToList();
 
-            var opportunity = new View
+            var opportunity = new OpportunityViewModel
             {
                 Id = id,
-                ExpectedInput = new Input(),
+                ExpectedInput = new OpportunityInputModel(),
                 ClientList = selectableClients
             };
             return opportunity;
@@ -52,7 +53,7 @@ namespace ArcadiaWebForm.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string id, Input obj)
+        public async Task<IActionResult> Create(string id, OpportunityInputModel obj)
         {
             if (!ModelState.IsValid)
             {
@@ -60,7 +61,7 @@ namespace ArcadiaWebForm.Controllers
                 return View("New", opportunity);
             }
 
-            var outputObj = _map.Map<Input, Output>(obj);
+            var outputObj = _map.Map<OpportunityInputModel, OpportunityOutputModel>(obj);
 
             await HandleDefaultValuesAsync(outputObj);
 
@@ -69,7 +70,7 @@ namespace ArcadiaWebForm.Controllers
             return RedirectToAction("index", "Forms");
         }
 
-        private async Task HandleDefaultValuesAsync(Output outputObj)
+        private async Task HandleDefaultValuesAsync(OpportunityOutputModel outputObj)
         {
             outputObj.Status = await CreateLinkObject<CrmStatus>(c => c.InDraft);
             outputObj.Probability = await CreateLinkObject<CrmProbability>(c => c.IsDefault);

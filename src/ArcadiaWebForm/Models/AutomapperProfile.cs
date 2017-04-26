@@ -6,7 +6,7 @@ namespace ArcadiaWebForm.Models
     {
         public AutomapperProfile()
         {
-            CreateMap<Opportunity.Input, Opportunity.Output>()
+            CreateMap<Opportunity.OpportunityInputModel, Opportunity.OpportunityOutputModel>()
                 .ForMember(o => o.Client, opt => opt.ResolveUsing(c => new ArcadiaLink
                 {
                     Type = "organisation",

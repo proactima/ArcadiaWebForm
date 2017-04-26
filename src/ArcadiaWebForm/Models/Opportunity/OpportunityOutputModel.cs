@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace ArcadiaWebForm.Models.Opportunity
 {
-    public class Output : Article
+    public class OpportunityOutputModel : Article
     {
         [JsonRequired]
         [JsonProperty(PropertyName = "title")]

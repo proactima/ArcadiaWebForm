@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace ArcadiaWebForm.Models
+namespace ArcadiaWebForm.Models.Entity
 {
-    public class CrmProbability : Entity
+    public class CrmPhase : Entity
     {
         [JsonProperty(PropertyName = "isdefault")]
         public bool IsDefault { get; set; }
-        public override string Objectname => "crmprobability";
+        public override string Objectname => "crmphase";
     }
 }

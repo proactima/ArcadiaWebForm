@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace ArcadiaWebForm.Models.Opportunity
 {
-    public class View
+    public class OpportunityViewModel
     {
         public string Id { get; set; }
         public IList<SelectListItem> ClientList { get; set; }
-        public Input ExpectedInput { get; set; }
+        public OpportunityInputModel ExpectedInput { get; set; }
     }
 }
