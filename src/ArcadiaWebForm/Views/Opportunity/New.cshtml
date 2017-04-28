@@ -9,12 +9,28 @@
     <div class="row">
         <h2>Create new opportunity</h2>
 
-        @Html.Partial("Create", Model.ExpectedInput, new ViewDataDictionary(this.ViewData) { { "list", Model.ClientList } })
+        @Html.Partial("Create", Model.ExpectedInput)
 
         <input type="submit" value="Create" class="btn btn-primary" />
     </div>
 </form>
 
 @section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            $.get('/Entity/Get?objectname=organisation', function (data) {
+                console.log(data)
+                $.each(data, function (index, value) {
+                    $('<option>').val(value.id).text(value.name).appendTo("#SelectedClient");
+                })
+            });
+
+            var dropdown = $('select[id="SelectedClient"]');
+            dropdown.prop('disabled', false);
+        })
+    </script>
+
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

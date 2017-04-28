@@ -4,7 +4,6 @@ using ArcadiaWebForm.Models.Opportunity;
 using ArcadiaWebForm.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,26 +26,16 @@ namespace ArcadiaWebForm.Controllers
         {
             var id = await _apiCaller.GetId();
 
-            var opportunity = await CreateViewModeAsync(id);
+            var opportunity = CreateViewModel(id);
             return View("New", opportunity);
         }
 
-        private async Task<OpportunityViewModel> CreateViewModeAsync(string id)
+        private OpportunityViewModel CreateViewModel(string id)
         {
-            var clients = await _apiCaller.LoadEntities<Organisation>();
-
-            var selectableClients = clients
-                .Select(c => new SelectListItem { Text = c.Name, Value = c.Id })
-                .OrderBy(c => c.Text)
-                .Concat(new[] { new SelectListItem { Text = "Select a client", Value = "", Selected = true } })
-                .OrderByDescending(s => s.Selected)
-                .ToList();
-
             var opportunity = new OpportunityViewModel
             {
                 Id = id,
                 ExpectedInput = new OpportunityInputModel(),
-                ClientList = selectableClients
             };
             return opportunity;
         }
@@ -57,7 +46,7 @@ namespace ArcadiaWebForm.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var opportunity = await CreateViewModeAsync(id);
+                var opportunity = CreateViewModel(id);
                 return View("New", opportunity);
             }
 
@@ -67,7 +56,7 @@ namespace ArcadiaWebForm.Controllers
 
             var response = await _apiCaller.StoreArticleAsync(outputObj);
 
-            return RedirectToAction("index", "Forms");
+            return RedirectToAction("success", "Home");
         }
 
         private async Task HandleDefaultValuesAsync(OpportunityOutputModel outputObj)

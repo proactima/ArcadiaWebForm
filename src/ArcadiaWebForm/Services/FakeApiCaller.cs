@@ -1,7 +1,6 @@
 ﻿using ArcadiaWebForm.Models;
 using ArcadiaWebForm.Models.Entity;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ArcadiaWebForm.Services
@@ -13,14 +12,37 @@ namespace ArcadiaWebForm.Services
             return Task.FromResult("aa");
         }
 
+        public Task<UserProfile> GetUserProfile()
+        {
+            return Task.FromResult(new UserProfile
+            {
+                Id = "id",
+                ShareduserId = "shareduserid",
+                MailAddress = "user@users.org",
+                CurrentOrganization = new OrganizationInfo
+                {
+                    Prefix = "a1234567",
+                    Name = "Current Organization"
+                },
+                AccessOrganizations = new List<OrganizationInfo>
+                {
+                    new OrganizationInfo
+                    {
+                        Prefix = "a1234567",
+                        Name = "Current Organization"
+                    },
+                    new OrganizationInfo
+                    {
+                        Prefix = "orgprefix",
+                        Name = "Some Other Organization"
+                    }
+                }
+            });
+        }
+
         public Task<IEnumerable<T>> LoadEntities<T>() where T : Entity, new()
         {
             var theList = new List<T>();
-            if (typeof(T) == typeof(Organisation))
-            {
-                theList.Add(new Organisation { Id = "cid1", Name = "Contoso" } as T);
-                theList.Add(new Organisation { Id = "cid2", Name = "Fabrikam" } as T);
-            }
 
             if (typeof(T) == typeof(CrmStatus))
             {
@@ -32,10 +54,19 @@ namespace ArcadiaWebForm.Services
             return Task.FromResult((IEnumerable<T>)theList);
         }
 
-        public Task<HttpResponseMessage> StoreArticleAsync(Article obj)
+        public Task<IEnumerable<AnyEntity>> LoadAllEntities(string objectname)
         {
-            var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-            return Task.FromResult(response);
+            var theList = new List<AnyEntity>
+            {
+                new AnyEntity { Id = "cid1", Name = "Contoso" },
+                new AnyEntity { Id = "cid2", Name = "Fabrikam" }
+            };
+            return Task.FromResult((IEnumerable<AnyEntity>)theList);
+        }
+
+        public Task<T> StoreArticleAsync<T>(T obj) where T : Article
+        {
+            return Task.FromResult(obj);
         }
     }
 }

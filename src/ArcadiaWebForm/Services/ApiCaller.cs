@@ -3,6 +3,7 @@ using ArcadiaWebForm.Models.Entity;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -26,6 +27,25 @@ namespace ArcadiaWebForm.Services
         {
             var response = await ExecuteAsync<IdModel>(HttpMethod.Get, "/id");
             return response.Results[0].Ids[0];
+        }
+
+        public async Task<IEnumerable<AnyEntity>> LoadAllEntities(string objectname)
+        {
+            var theList = new List<AnyEntity>();
+            var path = $"/entity/{objectname}?sortfield=name";
+            do
+            {
+                var response = await ExecuteAsync(HttpMethod.Get, path);
+                var bodyAsString = await response.Content.ReadAsStringAsync();
+                var pagedResult = JsonConvert.DeserializeObject<ResponseResultModel<AnyEntity>>(bodyAsString);
+                theList.AddRange(pagedResult.Results);
+
+                if (!response.Headers.Contains("Link"))
+                    path = string.Empty;
+                path = response.Headers.GetValues("Link").First();
+            } while (!string.IsNullOrEmpty(path));
+
+            return theList.OrderBy(e => e.Name);
         }
 
         public async Task<IEnumerable<T>> LoadEntities<T>() where T : Entity, new()
@@ -60,13 +80,20 @@ namespace ArcadiaWebForm.Services
             return model;
         }
 
-        public async Task<HttpResponseMessage> StoreArticleAsync(Article obj)
+        public async Task<T> StoreArticleAsync<T>(T obj) where T : Article
         {
             var objAsString = JsonConvert.SerializeObject(obj);
             var content = new StringContent(objAsString, Encoding.UTF8, "application/json");
             var response = await ExecuteAsync(HttpMethod.Put, $"/article/{obj.Objectname}/{obj.Id}", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var deserialized = JsonConvert.DeserializeObject<ResponseResultModel<T>>(responseContent);
+            return deserialized.Results[0];
+        }
 
-            return response;
+        public async Task<UserProfile> GetUserProfile()
+        {
+            var response = await ExecuteAsync<UserProfile>(HttpMethod.Get, "/profile/user");
+            return response.Results[0];
         }
     }
 }

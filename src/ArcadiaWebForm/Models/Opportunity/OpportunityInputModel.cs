@@ -12,7 +12,7 @@ namespace ArcadiaWebForm.Models.Opportunity
         public string Title { get; set; }
         public string Description { get; set; }
         [Required]
-        [Display(Name ="Client")]
+        [Display(Name = "Client")]
         public string SelectedClient { get; set; }
     }
 }

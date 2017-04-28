@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace ArcadiaWebForm.Controllers
 {
@@ -13,7 +14,7 @@ namespace ArcadiaWebForm.Controllers
         public IActionResult SignIn()
         {
             return Challenge(
-                new AuthenticationProperties { RedirectUri = "/" }, OpenIdConnectDefaults.AuthenticationScheme);
+                new AuthenticationProperties { ExpiresUtc = DateTime.UtcNow.AddMinutes(45), IsPersistent = false, RedirectUri = "/" }, OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         //

@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Success";
+}
+
+
+<div id="under">
+    <img src="~/images/forms.png" alt="UXRisk" />
+    <div id="over">
+        <h2>Success!</h2>
+        <p>
+            Your data has successfully been stored in UXRisk.
+        </p>
+
+        <p>
+            You will be sent to the frontpage in <span id="counter">4</span> seconds.
+        </p>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        setInterval(function () {
+            var div = document.querySelector("#counter");
+            var count = div.textContent * 1 - 1;
+            div.textContent = count;
+            if (count <= 0) {
+                var url = window.location.protocol + "//" + window.location.host;
+                location.href = url;
+            }
+        }, 1000);
+    </script>
+
+}

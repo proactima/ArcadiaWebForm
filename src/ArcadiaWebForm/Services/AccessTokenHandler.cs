@@ -15,6 +15,7 @@ namespace ArcadiaWebForm.Services
         private readonly IMemoryCache _cache;
         private readonly IHttpContextAccessor _contextAccessor;
 
+        private readonly string _callback;
         private readonly string _appKey;
         private readonly string _clientId;
         private readonly string _resourceId;
@@ -25,20 +26,23 @@ namespace ArcadiaWebForm.Services
             _contextAccessor = contextAccessor;
             _cache = cache;
 
+            _callback = configuration["Authentication:AzureAd:CallbackPath"];
             _appKey = configuration["Authentication:AzureAd:SecretKey"];
             _clientId = configuration["Authentication:AzureAd:ClientId"];
             _resourceId = configuration["Authentication:AzureAd:ResourceId"];
             _authority = $"{configuration["Authentication:AzureAd:AADInstance"]}{configuration["Authentication:AzureAd:TenantId"]}";
         }
 
+        public object OpenIdConnectAuthenticationDefaults { get; private set; }
+
         public async Task<string> AquireAccessTokenAsync()
         {
-            string userObjectID = _contextAccessor.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
 
-            var credential = new ClientCredential(_clientId, _appKey);
-            var authContext = new AuthenticationContext(_authority, new InMemoryTokenCache(_cache, userObjectID));
+            var userObjectID = (_contextAccessor.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier"))?.Value;
+            var authContext = new AuthenticationContext(Startup.Authority, new InMemoryTokenCache(_cache, userObjectID));
+            var credential = new ClientCredential(Startup.ClientId, Startup.ClientSecret);
+            var result = await authContext.AcquireTokenSilentAsync(Startup.ResourceId, credential, new UserIdentifier(userObjectID, UserIdentifierType.UniqueId));
 
-            var result = await authContext.AcquireTokenAsync(_resourceId, credential);
             return result.AccessToken;
         }
     }

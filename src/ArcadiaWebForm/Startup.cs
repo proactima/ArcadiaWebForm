@@ -1,15 +1,23 @@
-﻿using ArcadiaWebForm.Services;
+﻿using ArcadiaWebForm.Models;
+using ArcadiaWebForm.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System;
+using System.Threading.Tasks;
 
 namespace ArcadiaWebForm
 {
@@ -26,17 +34,21 @@ namespace ArcadiaWebForm
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
 
             if (env.IsDevelopment())
-            {
-                // For more details on using the user secret store see https://go.microsoft.com/fwlink/?LinkID=532709
                 builder.AddUserSecrets<Startup>();
-            }
+
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
         }
 
         public IConfigurationRoot Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        private IApplicationBuilder _app;
+
+        public static string ClientId;
+        public static string ClientSecret;
+        public static string Authority;
+        public static string ResourceId;
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IAccessTokenHandler, AccessTokenHandler>();
@@ -44,6 +56,7 @@ namespace ArcadiaWebForm
             services.AddMemoryCache();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IConfiguration>(Configuration);
+            services.AddScoped<ProfileAttribute>();
 
             var useRemote = Configuration.GetValue<bool>("UseRemote");
             if (useRemote)
@@ -61,6 +74,7 @@ namespace ArcadiaWebForm
                           .RequireAuthenticatedUser()
                           .Build();
                     o.Filters.Add(new AuthorizeFilter(policy));
+                    o.Filters.Add(typeof(ProfileAttribute));
                 });
 
                 services.AddAuthentication(
@@ -75,12 +89,14 @@ namespace ArcadiaWebForm
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            _app = app;
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseExceptionHandler("/Home/Error");
+                //app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
             }
             else
@@ -91,13 +107,23 @@ namespace ArcadiaWebForm
             var useRemote = Configuration.GetValue<bool>("UseRemote");
             if (useRemote)
             {
-                app.UseCookieAuthentication();
+                ClientId = Configuration["Authentication:AzureAd:ClientId"];
+                ClientSecret = Configuration["Authentication:AzureAd:SecretKey"];
+                Authority = Configuration["Authentication:AzureAd:AADInstance"] + Configuration["Authentication:AzureAd:TenantId"];
+                ResourceId = Configuration["Authentication:AzureAd:ResourceId"];
+
+                app.UseCookieAuthentication(new CookieAuthenticationOptions());
 
                 app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
                 {
-                    ClientId = Configuration["Authentication:AzureAd:ClientId"],
-                    Authority = Configuration["Authentication:AzureAd:AADInstance"] + Configuration["Authentication:AzureAd:TenantId"],
-                    CallbackPath = Configuration["Authentication:AzureAd:CallbackPath"]
+                    ClientId = ClientId,
+                    Authority = Authority,
+                    ResponseType = OpenIdConnectResponseType.CodeIdToken,
+                    GetClaimsFromUserInfoEndpoint = false,
+                    Events = new OpenIdConnectEvents
+                    {
+                        OnAuthorizationCodeReceived = OnAuthorizationCodeReceived,
+                    }
                 });
             }
 
@@ -109,6 +135,19 @@ namespace ArcadiaWebForm
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private async Task OnAuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
+        {
+            var request = context.HttpContext.Request;
+            var userObjectId = (context.Ticket.Principal.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier"))?.Value;
+            var currentUri = UriHelper.BuildAbsolute(request.Scheme, request.Host, request.PathBase, request.Path);
+            var clientCredential = new ClientCredential(ClientId, ClientSecret);
+            var authContext = new AuthenticationContext(Authority, new InMemoryTokenCache(_app.ApplicationServices.GetService<IMemoryCache>(), userObjectId));
+
+            var result = await authContext.AcquireTokenByAuthorizationCodeAsync(context.ProtocolMessage.Code, new Uri(currentUri), clientCredential, ResourceId);
+
+            context.HandleCodeRedemption(result.AccessToken, result.IdToken);
         }
     }
 }
