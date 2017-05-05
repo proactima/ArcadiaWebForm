@@ -58,3 +58,28 @@ PS C:\windows\system32> $store.Close()
 You can verify the certificate is in the Trusted Root store by running this command:
 
 `PS C:\windows\system32> dir Cert:\LocalMachine\Root`
+
+## What does it do?
+In 'Startup.cs' authentication is setup, including how to get a valid access token to call Arcadia API. This is standard [Open Connect ID](http://openid.net/connect/) setup for ASP.Net Core. If you wish to use another framework you will have to figure out how to do that in your chosen framework.
+
+The authentication setup includes using a token cache. This is to avoid having to fetch a new token on every request. The example includes an in-memory token cache; this is fine for development and simple applications running on a single server. However if you want to deploy to multiple servers you should consider using a [https://docs.microsoft.com/en-us/azure/architecture/multitenant-identity/token-cache](distributed token cache).
+
+The 'ProfileAttribute' filter is executed on every request and ensures that a valid token is present for API communication. It also loads the users profile and makes it possible to show the username and tenant name in the header of the page. Please note that for this example the user is simply signed out if something goes wrong (invalid token etc.). In a production environment you might want to handle token and cookie expiration better, there are [https://docs.microsoft.com/nb-no/aspnet/core/security/authentication/cookie](documentation) on this from Microsoft.
+
+The OpportunityController is setup with input/output and viewmodels, conversion happens via [http://automapper.org/](Automapper), using profiles. This makes it easy to code and avoids [https://www.hanselman.com/blog/ASPNETOverpostingMassAssignmentModelBindingSecurity.aspx](overposting security issues).
+
+In appsettings.json you can set the value of 'UseRemote' to false to use a fake api caller; it will return dummy data and accept any input. This is useful for debugging layout and such.
+
+## Using Arcadia API
+In order to create an article, such as an opportunity in this example, you always need a valid Arcadia Id first. The 'ICallApi' interface has a simple method to aquire such an id. Please note that the id might look like a guid; but it could be any string of equal or shorter length. Using that id you can PUT pretty much any valid JSON to the Api. The 'StoreArticleAsync' method will store an opportunity in the correct fashion. It's worth noting that all responses comes in the form of 
+
+```
+{
+    "results": [
+        { 
+            // reponse object
+        }
+    ]
+}
+```
+An article can have (basically) any number of fields, but for references (1:n, 1:1) there are specific rules. In the example this is illustrate through the class 'ArcadiaLink'; it holds the type name (unit, location, status etc.) and the reference id(s). In the example the reference is limited to entity references (e_[reference_name]_ids), but by using an article reference (a_[reference_name]_ids) two articles can also be linked. Please note that the child of the two (the one referenced in the values property of the link) need also to refer to the parent in the property 'parentid' and 'parenttype'. This allowes our backend to traverse a graph of articles both ways.
