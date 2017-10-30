@@ -15,7 +15,7 @@ In order for the example to work a few things need to be done.
 6. While still in the Azure portal, choose your application, click on **Settings** and choose **Properties**.
 7. Find the Application ID value and copy it to the clipboard.
 8. Configure Permissions for your application - in the Settings menu, choose the 'Required permissions' section, click on **Add**, then **Select an API**, and type 'UXRisk' in the textbox. Then, click on  **Select Permissions** and select 'Access UXRisk API'.
-9. Create a new application secret under API Settings/Keys. Name the key something to remember it by and copy it out (ypu will need it in the next step).
+9. Create a new application secret under API Settings/Keys. Name the key something to remember it by and copy it out (you will need it in the next step).
 
 ### Configure Forms App
 1. Open appsettings.json file
